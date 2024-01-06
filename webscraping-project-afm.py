@@ -3,8 +3,9 @@ from bs4 import BeautifulSoup
 import re
 
 # Creating different versions of the url with regex
-## url = f'https://www.afm.nl/nl-nl/sector/registers/vergunningenregisters/financiele-dienstverleners/details?id={i}'
-## i = re.findall("\w*-\w*-\w*-\w*-\w*", content)
+# url = f'https://www.afm.nl/nl-nl/sector/registers/vergunningenregisters/financiele-dienstverleners/details?id={i}'
+# i = re.findall("\w*-\w*-\w*-\w*-\w*", content)
+# UNDER CONSTRUCTION
 
 # Create dictionary with user-agent = Firefox
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0'}
