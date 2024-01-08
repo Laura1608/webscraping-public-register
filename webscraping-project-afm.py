@@ -37,33 +37,17 @@ table_results = soup.find_all('tbody')
 
 # Loop over table, get the text content following the span element within the table data, and add it to the final list
 for tr in table_results:
+    data = []
     for td in tr.find_all('td'):
         for span in td.find_all('span', class_='cc-mobile-title'):
             # Extract the text content after the span element within the td
             text_content = span.next_sibling
-            register.append(text_content)
+            data.append(text_content)
 
-#
-# # Before saving the file, check if already exists
-# file_exists = os.path.isfile("Register_AFM_Output.csv")
-#
-# # Create new csv file to add data to
-# with open("Register_AFM_Output.csv", "a", newline='') as file:
-#     headers = ["Statutaire_naam", "Handelsnaam", "Vergunningnummer", "Adres", "Land", "KvK", "Financiele_dienst", "Product", "Begindatum", "Einddatum"]
-#
-#     writer = csv.DictWriter(file, delimiter=',', fieldnames=headers, extrasaction='ignore', dialect='unix')
-#
-#     # Only add headers when the file is newly created
-#     if not file_exists:
-#         writer.writeheader()
-#
-#     # Loop over every result on business page
-#     for item in company_info:
-#         writer.writerow(item)
-#
-# print('Company information retrieved!')
+    register.append(data)
+
 
 # TO DO:
 # Get each tr on new row
-# Make csv save work
+# Save to csv
 # Make regex work
