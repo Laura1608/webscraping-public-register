@@ -1,13 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
-import re
-import csv
-import os.path
-
-# Creating different versions of the url with regex
-# url = f'https://www.afm.nl/nl-nl/sector/registers/vergunningenregisters/financiele-dienstverleners/details?id={i}'
-# i = re.findall("\w*-\w*-\w*-\w*-\w*", content)
-# UNDER CONSTRUCTION
+from io import StringIO
+import pandas as pd
 
 url = 'https://www.afm.nl/nl-nl/sector/registers/vergunningenregisters/financiele-dienstverleners/details?id=C18B1D63-774C-E811-80D9-005056BB0C82'
 
@@ -19,35 +13,34 @@ response = requests.get(url, headers=headers)
 content = response.content
 soup = BeautifulSoup(content, 'html.parser')
 
-
-# Scrape and find content based on class
-list_results = soup.find_all('div', class_='cc-em--detail-list__items')
-
 # Create empty list to store scraped content with company info
-register = []
+company_info = []
 
-# Loop over list, save content from every column, and add it to the final list
-for result in list_results:
-    for span in result.find_all('span', class_='cc-em--detail-list__value'):
-        register.append(span.text.strip())
+while True:
+    # Loop over table content based on tag
+    for item in soup.select(".cc-mobile-title"):
+        item.extract()
 
+        # Convert the data to a pandas dataframe
+        data = pd.read_html(StringIO(str(soup)))[0]
 
-# Scrape and find table content
-table_results = soup.find_all('tbody')
+    # Loop over list content, and select its labels and values
+    for label, value in zip(
+        soup.select(".cc-em--detail-list__label"),
+        soup.select(".cc-em--detail-list__value"),
+    ):
+        # Get the text from each label and value, and add them to dataframe
+        data[label.get_text(strip=True)] = value.get_text(strip=True)
 
-# Loop over table, get the text content following the span element within the table data, and add it to the final list
-for tr in table_results:
-    data = []
-    for td in tr.find_all('td'):
-        for span in td.find_all('span', class_='cc-mobile-title'):
-            # Extract the text content after the span element within the td
-            text_content = span.next_sibling
-            data.append(text_content)
+    company_info.append(data)
 
-    register.append(data)
+    # Find URL of next page by automatically selecting element
+    next_url = soup.select_one('a:-soup-contains("Volgende register resultaat")')
+    if not next_url:
+        break
+    url = "https://www.afm.nl/" + next_url["href"]
 
-
-# TO DO:
-# Get each tr on new row
-# Save to csv
-# Make regex work
+# Concatenate to one dataframe and save as csv
+register = pd.concat(company_info)
+register.to_csv('Register_AFM.csv', index=False)
+print('Company info received!')
